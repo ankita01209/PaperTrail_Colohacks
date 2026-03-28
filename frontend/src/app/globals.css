@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary: #b0c8f0;
+  --color-primary-container: #0f2a4a;
+  --color-secondary: #a6c8ff;
+  --color-secondary-container: #01539a;
+  
+  --color-surface-lowest: #000e23;
+  --color-surface-low: #001c3a;
+  --color-surface: #00142c;
+  --color-surface-high: #102b4b;
+  --color-surface-highest: #1c3556;
+  
+  --color-error: #ffb4ab;
+  --color-error-container: #93000a;
+  
+  --color-on-surface: #d4e3ff;
+  --color-on-surface-variant: #c4c6cf;
+  
+  --color-warning: #d97706;
+  --color-warning-bg: #fef3c7;
+  --color-success: #065f46;
+  --color-success-bg: #d1fae5;
+  
+  --color-bg: #00142c;
+  --color-on-bg: #d4e3ff;
+
+  --color-glass: rgba(28, 53, 86, 0.4);
+  --color-ghost-border: rgba(67, 71, 78, 0.15);
+  --color-glow: rgba(255, 255, 255, 0.15);
+}
+
+@theme inline {
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-on-bg);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+
+  /* Custom colors for Tailwind v4 */
+  --color-pt-primary: var(--color-primary);
+  --color-pt-primary-container: var(--color-primary-container);
+  --color-pt-secondary: var(--color-secondary);
+  --color-pt-secondary-container: var(--color-secondary-container);
+  --color-pt-surface-lowest: var(--color-surface-lowest);
+  --color-pt-surface-low: var(--color-surface-low);
+  --color-pt-surface: var(--color-surface);
+  --color-pt-surface-high: var(--color-surface-high);
+  --color-pt-surface-highest: var(--color-surface-highest);
+  --color-pt-error: var(--color-error);
+  --color-pt-error-container: var(--color-error-container);
+  --color-pt-warning: var(--color-warning);
+  --color-pt-warning-bg: var(--color-warning-bg);
+  --color-pt-success: var(--color-success);
+  --color-pt-success-bg: var(--color-success-bg);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-on-bg);
+  font-family: var(--font-sans);
+}
+
+/* Glassmorphism utilities */
+@layer utilities {
+  .glass-card {
+    background-color: var(--color-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--color-glow);
+    border-left: 1px solid var(--color-glow);
+    border-right: 1px solid var(--color-ghost-border);
+    border-bottom: 1px solid var(--color-ghost-border);
+    border-radius: 0.75rem;
+    box-shadow: 0 32px 64px rgba(0, 0, 0, 0.08); /* 8% opacity as per doc */
+  }
+  
+  .glass-button {
+    background-color: var(--color-pt-surface-highest);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--color-ghost-border);
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .glass-button:hover {
+    box-shadow: 0 0 15px var(--color-glow);
+    border-color: var(--color-glow);
+  }
+  
+  .ghost-input {
+    background-color: var(--color-pt-surface-lowest);
+    border: 1px solid var(--color-ghost-border);
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .ghost-input:focus {
+    border-color: transparent;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 0 0 2px var(--color-pt-primary);
+  }
+}
+
+/* Safe Area Utility */
+.safe-area-pt { padding-top: env(safe-area-inset-top); }
+.safe-area-pb { padding-bottom: env(safe-area-inset-bottom); }
