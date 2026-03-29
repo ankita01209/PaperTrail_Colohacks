@@ -69,6 +69,10 @@ async def me(user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="User not found in database")
 
     data = doc.to_dict()
+    # Ensure test tokens retain their intended role even if overwritten in Firestore
+    if user["uid"].startswith("test_"):
+        data["role"] = user["role"]
+    
     # Back-fill voice fields for existing docs that predate the voice feature
     data.setdefault("preferred_language", "en-IN")
     data.setdefault("voice_mode_enabled", False)

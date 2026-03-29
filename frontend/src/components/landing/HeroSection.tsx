@@ -1,9 +1,23 @@
 "use client";
 
-import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import { ChevronDown, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
+
+// Lazy-load framer-motion to avoid blocking initial render
+const MotionDiv = dynamic(
+  () => import('framer-motion').then((mod) => mod.motion.div),
+  { ssr: false }
+);
+const MotionH1 = dynamic(
+  () => import('framer-motion').then((mod) => mod.motion.h1),
+  { ssr: false }
+);
+const MotionP = dynamic(
+  () => import('framer-motion').then((mod) => mod.motion.p),
+  { ssr: false }
+);
 
 export function HeroSection() {
   return (
@@ -16,7 +30,7 @@ export function HeroSection() {
       <div className="relative z-10 w-full max-w-5xl mx-auto text-center flex flex-col items-center">
         
         {/* SVG Scan Animation (Mockup) */}
-        <motion.div 
+        <MotionDiv 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
@@ -30,24 +44,24 @@ export function HeroSection() {
           </div>
           
           {/* Laser Scan Line */}
-          <motion.div 
+          <MotionDiv 
             animate={{ top: ['0%', '100%', '0%'] }}
             transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
             className="absolute left-0 w-full h-0.5 bg-[var(--color-primary)] shadow-[0_0_10px_var(--color-primary)] pointer-events-none"
           />
-        </motion.div>
+        </MotionDiv>
 
         {/* Headlines */}
-        <motion.h1 
+        <MotionH1 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-5xl sm:text-6xl md:text-7xl font-serif font-bold text-white tracking-tight mb-6"
         >
           Digitise. Verify. <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">Preserve.</span>
-        </motion.h1>
+        </MotionH1>
 
-        <motion.p 
+        <MotionP 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
@@ -55,10 +69,10 @@ export function HeroSection() {
         >
           PaperTrail transforms handwritten government forms into structured digital records. 
           AI-powered extraction meets human intelligence — every field verified, every submission traceable.
-        </motion.p>
+        </MotionP>
 
         {/* CTAs */}
-        <motion.div 
+        <MotionDiv 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
@@ -75,22 +89,22 @@ export function HeroSection() {
               See How It Works
             </Button>
           </Link>
-        </motion.div>
+        </MotionDiv>
 
         {/* Scroll Indicator */}
-        <motion.div 
+        <MotionDiv 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 1 }}
           className="mt-20 absolute bottom-10 flex justify-center w-full max-w-5xl mx-auto"
         >
-          <motion.div
+          <MotionDiv
             animate={{ y: [0, 10, 0] }}
             transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
           >
             <ChevronDown className="text-[var(--color-on-surface-variant)]" size={32} />
-          </motion.div>
-        </motion.div>
+          </MotionDiv>
+        </MotionDiv>
 
       </div>
     </section>

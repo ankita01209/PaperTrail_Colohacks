@@ -58,9 +58,10 @@ export default function SignupPage() {
       if (!isMock) {
         const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
         token = await userCredential.user.getIdToken();
+        // Sign out immediately so they have to log in again on the /login page
+        await auth.signOut();
       } else {
         token = data.email.includes('admin') ? 'test_admin_token' : 'test_clerk_token';
-        localStorage.setItem('dev_token', token);
         await new Promise(r => setTimeout(r, 600)); // Simulate network request for UX
       }
       
@@ -72,13 +73,15 @@ export default function SignupPage() {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data?.uid) {
-        toast.success('Account created successfully');
-        setUser(response.data);
-        setRole(response.data.role);
-        router.push('/upload');
+        toast.success('Account created successfully. Please sign in.');
+        router.push('/login');
       }
     } catch (error: any) {
-      toast.error(error.message || 'Failed to create account. Please contact support.');
+      if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
+        toast.error('Cannot connect to backend server. Is it running on port 8000?');
+      } else {
+        toast.error(error.response?.data?.detail || error.message || 'Failed to create account. Please contact support.');
+      }
     } finally {
       setLoading(false);
     }

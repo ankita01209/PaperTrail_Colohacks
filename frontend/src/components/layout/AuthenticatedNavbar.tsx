@@ -85,7 +85,7 @@ export function AuthenticatedNavbar({ isAdmin = false }: { isAdmin?: boolean }) 
               <div className="px-4 py-3 border-b border-[var(--color-ghost-border)]">
                 <p className="text-sm font-medium text-white truncate">{user?.name}</p>
                 <p className="text-xs text-[var(--color-on-surface-variant)] truncate">{user?.email}</p>
-                <p className="text-[10px] uppercase font-bold text-[var(--color-primary)] mt-1">{role}</p>
+                <p className="text-[10px] uppercase font-bold text-[var(--color-primary)] mt-1">{user?.role}</p>
               </div>
               <div className="py-1">
                 <Link 

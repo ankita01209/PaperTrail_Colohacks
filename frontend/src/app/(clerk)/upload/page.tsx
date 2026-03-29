@@ -15,7 +15,7 @@ export default function UploadPage() {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const { setSessionId } = useAppStore();
+  const { setSessionId, setPipelineData } = useAppStore();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -60,6 +60,10 @@ export default function UploadPage() {
       });
 
       if (response.data && response.data.session_id) {
+        setPipelineData({ 
+          originalImageUrl: response.data.original_image_url,
+          cleanedImageUrl: response.data.cleaned_image_url 
+        });
         setSessionId(response.data.session_id);
         toast.success('Document uploaded successfully');
         router.push('/upload/preprocess');

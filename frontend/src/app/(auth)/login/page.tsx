@@ -62,7 +62,11 @@ export default function LoginPage() {
         }
       }
     } catch (error: any) {
-      toast.error(error.message || 'Failed to sign in. Please check your credentials.');
+      if (error.code === 'ERR_NETWORK' || error.message?.includes('Network Error')) {
+        toast.error('Cannot connect to backend server. Is it running on port 8000?');
+      } else {
+        toast.error(error.response?.data?.detail || error.message || 'Failed to sign in. Please check your credentials.');
+      }
     } finally {
       setLoading(false);
     }

@@ -1,8 +1,13 @@
 "use client";
 
-import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import { CloudUpload, Sparkles, TextCursorInput, CheckCircle } from 'lucide-react';
 import { GlassCard } from '@/components/ui/GlassCard';
+
+const MotionDiv = dynamic(
+  () => import('framer-motion').then((mod) => mod.motion.div),
+  { ssr: false }
+);
 
 const steps = [
   {
@@ -27,35 +32,35 @@ const steps = [
   }
 ];
 
-export function HowItWorks() {
-  const container = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15
-      }
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15
     }
-  };
+  }
+};
 
-  const item = {
-    hidden: { opacity: 0, y: 30 },
-    show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
-  };
+const item = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } }
+};
 
+export function HowItWorks() {
   return (
     <section id="how-it-works" className="py-24 px-6 md:px-12 bg-[var(--color-bg)]">
       <div className="max-w-7xl mx-auto">
-        <motion.div 
+        <MotionDiv 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-serif font-bold text-white mb-4">How It Works</h2>
-        </motion.div>
+        </MotionDiv>
 
-        <motion.div 
+        <MotionDiv 
           variants={container}
           initial="hidden"
           whileInView="show"
@@ -63,7 +68,7 @@ export function HowItWorks() {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {steps.map((step, idx) => (
-            <motion.div key={idx} variants={item} className="relative group">
+            <MotionDiv key={idx} variants={item} className="relative group">
               <GlassCard glowHover className="h-full flex flex-col items-center text-center p-8 bg-[var(--color-surface-lowest)]/50">
                 <div className="w-16 h-16 rounded-2xl bg-[var(--color-surface-high)] border border-[var(--color-ghost-border)] flex items-center justify-center mb-6 group-hover:border-[var(--color-primary)]/50 transition-colors shadow-inner">
                   <step.icon className="text-[var(--color-primary)]" size={32} strokeWidth={1.5} />
@@ -81,9 +86,9 @@ export function HowItWorks() {
               {idx < steps.length - 1 && (
                 <div className="hidden lg:block absolute top-1/2 -right-6 w-6 h-px border-t-2 border-dashed border-[var(--color-ghost-border)] pointer-events-none transform -translate-y-1/2"></div>
               )}
-            </motion.div>
+            </MotionDiv>
           ))}
-        </motion.div>
+        </MotionDiv>
       </div>
     </section>
   );

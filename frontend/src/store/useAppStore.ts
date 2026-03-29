@@ -18,13 +18,25 @@ interface AppState {
   user: UserProfile | null;
   role: Role;
   sessionId: string | null;
+  originalImageUrl: string | null;
   cleanedImageUrl: string | null;
   extractedFields: any[] | null;
+  originalExtractedFields: any[] | null;
   templateSchema: any[] | null;
+  templateName: string | null;
+  templateConfidence: number | null;
   setUser: (user: UserProfile | null) => void;
   setRole: (role: Role) => void;
   setSessionId: (id: string | null) => void;
-  setPipelineData: (data: { cleanedImageUrl?: string; extractedFields?: any[]; templateSchema?: any[] }) => void;
+  setPipelineData: (data: {
+    originalImageUrl?: string;
+    cleanedImageUrl?: string;
+    extractedFields?: any[];
+    originalExtractedFields?: any[];
+    templateSchema?: any[];
+    templateName?: string;
+    templateConfidence?: number;
+  }) => void;
   clearSession: () => void;
   logout: () => void;
 }
@@ -35,19 +47,54 @@ export const useAppStore = create<AppState>()(
       user: null,
       role: null,
       sessionId: null,
+      originalImageUrl: null,
       cleanedImageUrl: null,
       extractedFields: null,
+      originalExtractedFields: null,
       templateSchema: null,
+      templateName: null,
+      templateConfidence: null,
       setUser: (user) => set({ user }),
       setRole: (role) => set({ role }),
       setSessionId: (id) => set({ sessionId: id }),
       setPipelineData: (data) => set((state) => ({ ...state, ...data })),
-      clearSession: () => set({ sessionId: null, cleanedImageUrl: null, extractedFields: null, templateSchema: null }),
-      logout: () => set({ user: null, role: null, sessionId: null, cleanedImageUrl: null, extractedFields: null, templateSchema: null })
+      clearSession: () => set({
+        sessionId: null,
+        originalImageUrl: null,
+        cleanedImageUrl: null,
+        extractedFields: null,
+        originalExtractedFields: null,
+        templateSchema: null,
+        templateName: null,
+        templateConfidence: null,
+      }),
+      logout: () => set({
+        user: null,
+        role: null,
+        sessionId: null,
+        originalImageUrl: null,
+        cleanedImageUrl: null,
+        extractedFields: null,
+        originalExtractedFields: null,
+        templateSchema: null,
+        templateName: null,
+        templateConfidence: null,
+      }),
     }),
     {
       name: 'pt-state',
-      partialize: (state) => ({ sessionId: state.sessionId, user: state.user, role: state.role, cleanedImageUrl: state.cleanedImageUrl, extractedFields: state.extractedFields, templateSchema: state.templateSchema }),
+      partialize: (state) => ({
+        sessionId: state.sessionId,
+        user: state.user,
+        role: state.role,
+        originalImageUrl: state.originalImageUrl,
+        cleanedImageUrl: state.cleanedImageUrl,
+        extractedFields: state.extractedFields,
+        originalExtractedFields: state.originalExtractedFields,
+        templateSchema: state.templateSchema,
+        templateName: state.templateName,
+        templateConfidence: state.templateConfidence,
+      }),
     }
   )
 );

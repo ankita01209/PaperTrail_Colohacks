@@ -7,6 +7,8 @@ import { auth } from '@/lib/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import { Loader2 } from 'lucide-react';
 
+const PUBLIC_PATHS = ['/', '/login', '/signup', '/forgot-password'];
+
 export default function AuthGuard({ children, requireAdmin = false }: { children: React.ReactNode, requireAdmin?: boolean }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -15,37 +17,77 @@ export default function AuthGuard({ children, requireAdmin = false }: { children
   const [isAllowed, setIsAllowed] = useState(false);
 
   useEffect(() => {
+    // ── Fast-path: persisted Zustand state survives refreshes ──
+    // If Zustand already has a user and role (restored from localStorage),
+    // trust it immediately instead of waiting for Firebase.
+    const isMock = !process.env.NEXT_PUBLIC_FIREBASE_API_KEY || process.env.NEXT_PUBLIC_FIREBASE_API_KEY === "mock-key";
+
+    if (user && role) {
+      // Already authenticated via Zustand persistence
+      if (requireAdmin && role !== 'admin') {
+        router.replace('/upload');
+      } else if (pathname === '/login' || pathname === '/signup') {
+        router.replace(role === 'admin' ? '/admin' : '/upload');
+      } else {
+        setIsAllowed(true);
+      }
+      setIsInitializing(false);
+      return;
+    }
+
+    // ── Dev/mock mode: skip Firebase listener entirely ──
+    if (isMock) {
+      if (!PUBLIC_PATHS.includes(pathname)) {
+        // Not logged in (no Zustand state) and not on a public page → redirect
+        logout();
+        router.replace('/login');
+      } else {
+        setIsAllowed(true);
+      }
+      setIsInitializing(false);
+      return;
+    }
+
+    // ── Production: use Firebase auth state ──
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (!firebaseUser) {
-        // Not logged in
-        if (pathname !== '/login' && pathname !== '/signup' && pathname !== '/forgot-password' && pathname !== '/') {
+        if (!PUBLIC_PATHS.includes(pathname)) {
           logout();
           router.replace('/login');
         } else {
           setIsAllowed(true);
         }
       } else {
-        // Logged in
         if (user && role) {
           if (requireAdmin && role !== 'admin') {
-            router.replace('/upload'); // Clerk trying to access admin
+            router.replace('/upload');
           } else if (pathname === '/login' || pathname === '/signup') {
-             router.replace(role === 'admin' ? '/admin' : '/upload');
+            router.replace(role === 'admin' ? '/admin' : '/upload');
           } else {
             setIsAllowed(true);
           }
         } else {
-          // Firebase knows we're logged in but Zustand lost state (refresh)
-          // Ideally fetch /auth/me here to restore, but for now we sign out or wait
-          // We will fetch from /auth/me in layout if user is null
+          // Firebase knows we're logged in but Zustand lost state
           setIsAllowed(true);
         }
       }
       setIsInitializing(false);
     });
 
-    return () => unsubscribe();
-  }, [user, role, pathname, router, requireAdmin, logout]);
+    // Add a safety timeout — never block rendering for more than 2 seconds
+    const timeout = setTimeout(() => {
+      setIsInitializing(false);
+      if (!isAllowed) {
+        setIsAllowed(true); // Unblock and let the page render
+      }
+    }, 2000);
+
+    return () => {
+      unsubscribe();
+      clearTimeout(timeout);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, role, pathname]);
 
   if (isInitializing || !isAllowed) {
     return (

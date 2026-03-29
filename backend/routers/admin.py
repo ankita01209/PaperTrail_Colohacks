@@ -62,14 +62,32 @@ async def latest_documents(admin: dict = Depends(require_admin)):
     entries = []
     for uDoc in users_docs:
         u = uDoc.to_dict()
-        records = (
-            db.collection("records")
-            .where("clerk_uid", "==", u["uid"])
-            .order_by("submitted_at", direction="DESCENDING")
-            .limit(1)
-            .stream()
-        )
-        latest = next(records, None)
+        try:
+            # Try compound query first (requires composite index)
+            records = (
+                db.collection("records")
+                .where("clerk_uid", "==", u["uid"])
+                .order_by("submitted_at", direction="DESCENDING")
+                .limit(1)
+                .stream()
+            )
+            latest = next(records, None)
+        except Exception:
+            # Fallback: fetch all records for this clerk and sort in Python
+            all_records = list(
+                db.collection("records")
+                .where("clerk_uid", "==", u["uid"])
+                .stream()
+            )
+            if all_records:
+                all_records.sort(
+                    key=lambda d: d.to_dict().get("submitted_at", ""),
+                    reverse=True,
+                )
+                latest = all_records[0]
+            else:
+                latest = None
+
         if latest:
             r = latest.to_dict()
             entries.append(LatestDocumentEntry(
@@ -98,13 +116,33 @@ async def list_records(
     department: str = Query(None),
     admin: dict = Depends(require_admin),
 ):
-    query = db.collection("records").order_by("submitted_at", direction="DESCENDING")
+    query = db.collection("records")
     if clerk_uid:
         query = query.where("clerk_uid", "==", clerk_uid)
     if department:
         query = query.where("department", "==", department)
 
-    all_docs = list(query.stream())
+    try:
+        # If there are no filters, we can order_by directly
+        if not clerk_uid and not department:
+            query = query.order_by("submitted_at", direction="DESCENDING")
+            all_docs = list(query.stream())
+        else:
+            # Filters applied: compound query requires composite index.
+            # Catch exceptions or just do Python sorting unconditionally.
+            all_docs = list(query.stream())
+            all_docs.sort(
+                key=lambda d: d.to_dict().get("submitted_at", ""),
+                reverse=True
+            )
+    except Exception:
+        # Fallback Python sorting if index fails
+        all_docs = list(query.stream())
+        all_docs.sort(
+            key=lambda d: d.to_dict().get("submitted_at", ""),
+            reverse=True
+        )
+
     total = len(all_docs)
     start = (page - 1) * page_size
     page_docs = all_docs[start: start + page_size]
